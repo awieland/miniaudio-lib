@@ -47,6 +47,14 @@ MA_API ma_encoder_config* ma_ext_encoder_config_init(ma_encoding_format encoding
     return allocate_ma_encoder_config_copy(config);
 }
 
+MA_API ma_encoder* ma_ext_allocate_encoder() {
+    return MA_EXT_CREATE(ma_encoder);
+}
+
+MA_API ma_device* ma_ext_allocate_device() {
+    return MA_EXT_CREATE(ma_device);
+}
+
 void data_callback_for_capture(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
     ma_encoder* pEncoder = (ma_encoder*)pDevice->pUserData;
@@ -72,9 +80,9 @@ int main(int argc, char** argv)
 {
     ma_result result;
     ma_encoder_config* encoderConfig;
-    ma_encoder encoder;
+    ma_encoder* encoder = ma_ext_allocate_encoder();
     ma_device_config* deviceConfig;
-    ma_device device;
+    ma_device* device = ma_ext_allocate_device();
  
     if (argc < 2) {
         printf("No output file.\n");
@@ -83,22 +91,22 @@ int main(int argc, char** argv)
  
     encoderConfig = ma_ext_encoder_config_init(ma_encoding_format_wav, ma_format_f32, 2, 44100);
 
-    if (ma_encoder_init_file(argv[1], encoderConfig, &encoder) != MA_SUCCESS) {
+    if (ma_encoder_init_file(argv[1], encoderConfig, encoder) != MA_SUCCESS) {
         printf("Failed to initialize output file.\n");
         return -1;
     }
 
-    deviceConfig = ma_ext_device_config_init_for_capture(&encoder);
+    deviceConfig = ma_ext_device_config_init_for_capture(encoder);
 
-    result = ma_device_init(NULL, deviceConfig, &device);
+    result = ma_device_init(NULL, deviceConfig, device);
     if (result != MA_SUCCESS) {
         printf("Failed to initialize capture device.\n");
         return -2;
     }
 
-    result = ma_device_start(&device);
+    result = ma_device_start(device);
     if (result != MA_SUCCESS) {
-        ma_device_uninit(&device);
+        ma_device_uninit(device);
         printf("Failed to start device.\n");
         return -3;
     }
@@ -106,10 +114,12 @@ int main(int argc, char** argv)
     printf("Press Enter to stop recording...\n");
     getchar();
     
-    ma_device_uninit(&device);
-    ma_encoder_uninit(&encoder);
+    ma_device_uninit(device);
+    ma_encoder_uninit(encoder);
     ma_ext_free(encoderConfig);
+    ma_ext_free(encoder);
     ma_ext_free(deviceConfig);
+    ma_ext_free(device);
 
     return 0;
 }
