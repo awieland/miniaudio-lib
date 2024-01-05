@@ -1,0 +1,1 @@
+This is a DLL interface for the miniaudio library (https://miniaud.io/). Because miniaudio isn't designed to be used as a stand-alone library (as opposed to compiled with the project that uses it), it can't reference structs directly; otherwise, the ABI will break between versions and platforms.
