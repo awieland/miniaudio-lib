@@ -15,11 +15,11 @@ data received by the microphone straight to a WAV file.
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MA_EXT_CREATE(t) (t*) ma_aligned_malloc(sizeof(t), MA_SIMD_ALIGNMENT, NULL);
+#define MA_EXT_CREATE(t) (t*) ma_malloc(sizeof(t), NULL);
 
 MA_API void ma_ext_free(void* ptr)
 {
-    ma_aligned_free(ptr, NULL);
+    ma_free(ptr, NULL);
 }
 
 // Wrappers that convert a stack-allocated result to a (pointer to a) heap-allocated one.
